@@ -4,8 +4,13 @@ export class InitialSchema1789315100017 implements MigrationInterface {
   name = 'InitialSchema1789315100017';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public`);
-    await queryRunner.query(`COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)'`);
+    // Enable pgcrypto for gen_random_uuid() — works on Render, Neon, AWS RDS, and local PostgreSQL
+    // without requiring superuser privileges (unlike uuid-ossp)
+    try {
+      await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto"`);
+    } catch {
+      // Already enabled or insufficient privileges — gen_random_uuid() is built-in on PG 13+
+    }
     await queryRunner.query(`CREATE TYPE public.branches_status_enum AS ENUM (
     'ACTIVE',
     'INACTIVE'
@@ -85,7 +90,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     'CLEANING'
 )`);
     await queryRunner.query(`CREATE TABLE public.branches (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     name character varying(255) NOT NULL,
     address text,
@@ -95,7 +100,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.businesses (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying(255) NOT NULL,
     address text,
     phone character varying(20),
@@ -108,7 +113,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.categories (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     name character varying(100) NOT NULL,
     description text,
@@ -119,7 +124,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.credit_accounts (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     customer_id uuid NOT NULL,
     balance numeric(12,2) DEFAULT '0'::numeric NOT NULL,
@@ -128,7 +133,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.credit_transactions (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     credit_account_id uuid NOT NULL,
     invoice_id uuid,
@@ -140,7 +145,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     created_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.customers (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     name character varying(255) NOT NULL,
     phone character varying(20),
@@ -152,13 +157,13 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.expense_categories (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid,
     name character varying(100) NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.expenses (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     branch_id uuid NOT NULL,
     category_id uuid,
@@ -171,7 +176,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.inventory_items (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     name character varying(255) NOT NULL,
     unit character varying(50) NOT NULL,
@@ -183,7 +188,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.inventory_transactions (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     branch_id uuid NOT NULL,
     inventory_item_id uuid NOT NULL,
@@ -197,7 +202,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     created_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.invoices (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     branch_id uuid NOT NULL,
     order_id uuid NOT NULL,
@@ -218,7 +223,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.kot_items (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     kot_id uuid NOT NULL,
     order_item_id uuid NOT NULL,
     product_name character varying(255) NOT NULL,
@@ -229,7 +234,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.kots (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     branch_id uuid NOT NULL,
     order_id uuid NOT NULL,
     kot_number character varying(50) NOT NULL,
@@ -239,7 +244,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.loyalty_rules (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     spend_amount numeric(12,2) DEFAULT '100'::numeric NOT NULL,
     points_earned integer DEFAULT 1 NOT NULL,
@@ -249,7 +254,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.loyalty_transactions (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     customer_id uuid NOT NULL,
     order_id uuid,
@@ -261,7 +266,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     created_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.order_items (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     order_id uuid NOT NULL,
     product_id uuid NOT NULL,
     product_name character varying(255) NOT NULL,
@@ -277,7 +282,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.order_status_history (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     order_id uuid NOT NULL,
     from_status character varying(50),
     to_status character varying(50) NOT NULL,
@@ -286,7 +291,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     created_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.orders (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     branch_id uuid NOT NULL,
     order_number character varying(50) NOT NULL,
@@ -308,7 +313,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.payments (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     branch_id uuid NOT NULL,
     invoice_id uuid NOT NULL,
@@ -320,7 +325,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     created_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.products (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     category_id uuid NOT NULL,
     name character varying(255) NOT NULL,
@@ -335,7 +340,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.purchase_items (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     purchase_id uuid NOT NULL,
     inventory_item_id uuid NOT NULL,
     quantity numeric(12,3) NOT NULL,
@@ -344,7 +349,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     created_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.purchases (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     branch_id uuid NOT NULL,
     supplier_id uuid NOT NULL,
@@ -361,7 +366,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.recipe_items (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     recipe_id uuid NOT NULL,
     inventory_item_id uuid NOT NULL,
     quantity numeric(12,3) NOT NULL,
@@ -369,7 +374,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     created_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.recipes (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     product_id uuid NOT NULL,
     name character varying(255),
     yield_quantity numeric(10,3) DEFAULT '1'::numeric NOT NULL,
@@ -379,7 +384,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.refresh_tokens (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     token_hash text NOT NULL,
     expires_at timestamp with time zone NOT NULL,
@@ -387,7 +392,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     created_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.refunds (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     invoice_id uuid NOT NULL,
     payment_id uuid NOT NULL,
     amount numeric(12,2) NOT NULL,
@@ -396,7 +401,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     created_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.roles (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     name character varying(100) NOT NULL,
     permissions jsonb DEFAULT '[]'::jsonb NOT NULL,
@@ -405,7 +410,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.suppliers (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     name character varying(255) NOT NULL,
     phone character varying(20),
@@ -416,7 +421,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.table_areas (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     branch_id uuid NOT NULL,
     name character varying(100) NOT NULL,
     description text,
@@ -424,7 +429,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.tables (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     branch_id uuid NOT NULL,
     table_area_id uuid NOT NULL,
     name character varying(50) NOT NULL,
@@ -434,7 +439,7 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 )`);
     await queryRunner.query(`CREATE TABLE public.users (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     business_id uuid NOT NULL,
     branch_id uuid,
     role_id uuid NOT NULL,
@@ -766,6 +771,11 @@ export class InitialSchema1789315100017 implements MigrationInterface {
     await queryRunner.query(`DROP TYPE IF EXISTS public."inventory_transactions_type_enum" CASCADE`);
     await queryRunner.query(`DROP TYPE IF EXISTS public."credit_transactions_type_enum" CASCADE`);
     await queryRunner.query(`DROP TYPE IF EXISTS public."branches_status_enum" CASCADE`);
-    await queryRunner.query(`DROP EXTENSION IF EXISTS "uuid-ossp" CASCADE`);
+    try {
+      await queryRunner.query(`DROP FUNCTION IF EXISTS public.uuid_generate_v4() CASCADE`);
+      await queryRunner.query(`DROP EXTENSION IF EXISTS "uuid-ossp" CASCADE`);
+    } catch {
+      // Ignore cleanup error if restricted
+    }
   }
 }
