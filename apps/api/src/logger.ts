@@ -25,22 +25,30 @@ const transports: winston.transport[] = [
   }),
 ];
 
-if (isProduction) {
-  transports.push(
-    new winston.transports.File({
-      filename: 'logs/error.log',
-      level: 'error',
-      format: formats.prod,
-      maxsize: 10 * 1024 * 1024, // 10 MB
-      maxFiles: 5,
-    }),
-    new winston.transports.File({
-      filename: 'logs/combined.log',
-      format: formats.prod,
-      maxsize: 20 * 1024 * 1024, // 20 MB
-      maxFiles: 5,
-    })
-  );
+if (isProduction && process.env.ENABLE_FILE_LOGGING === 'true') {
+  try {
+    const fs = require('fs');
+    if (!fs.existsSync('logs')) {
+      fs.mkdirSync('logs', { recursive: true });
+    }
+    transports.push(
+      new winston.transports.File({
+        filename: 'logs/error.log',
+        level: 'error',
+        format: formats.prod,
+        maxsize: 10 * 1024 * 1024, // 10 MB
+        maxFiles: 5,
+      }),
+      new winston.transports.File({
+        filename: 'logs/combined.log',
+        format: formats.prod,
+        maxsize: 20 * 1024 * 1024, // 20 MB
+        maxFiles: 5,
+      })
+    );
+  } catch (_e) {
+    // If filesystem is read-only or unavailable, fallback to console only
+  }
 }
 
 export const logger = winston.createLogger({

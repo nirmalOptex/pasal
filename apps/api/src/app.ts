@@ -38,16 +38,34 @@ export function createApp(): Application {
   // ─── Security ─────────────────────────────────────────────
   app.use(helmet());
 
-  const allowedOrigin = process.env.FRONTEND_URL;
+  const frontendEnv = process.env.FRONTEND_URL;
+  let corsOrigin: boolean | ((origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => void) = true;
+
+  if (frontendEnv) {
+    const allowedOrigins = frontendEnv
+      .split(',')
+      .map((url) => url.trim().replace(/\/+$/, ''))
+      .filter(Boolean);
+
+    corsOrigin = (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, uptime probes)
+      if (!origin) return callback(null, true);
+      const normalized = origin.replace(/\/+$/, '');
+      if (allowedOrigins.includes(normalized)) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    };
+  } else if (process.env.NODE_ENV === 'production') {
+    logger.warn('CORS is open to all origins. Set FRONTEND_URL in environment to restrict access.');
+  }
+
   app.use(
     cors({
-      origin: allowedOrigin || true, // true = reflect any origin; safe for internal/private deployments
+      origin: corsOrigin,
       credentials: true,
     })
   );
-  if (!allowedOrigin && process.env.NODE_ENV === 'production') {
-    logger.warn('CORS is open to all origins. Set FRONTEND_URL in .env.production to restrict access.');
-  }
 
   // ─── Rate limiting ─────────────────────────────────────────
   const limiter = rateLimit({
