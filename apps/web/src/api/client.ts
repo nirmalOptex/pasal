@@ -1,8 +1,12 @@
 import axios from 'axios';
 
-// In production: set VITE_API_URL in apps/web/.env.production
+// In production: set VITE_API_URL in environment or apps/web/.env.production
+// Example: https://chhiyapasal-api.onrender.com OR https://chhiyapasal-api.onrender.com/api/v1
 // In development: falls back to /api/v1 so the Vite proxy handles routing to localhost:4000
-const baseURL = import.meta.env.VITE_API_URL || '/api/v1';
+const rawApiUrl = import.meta.env.VITE_API_URL;
+const baseURL = rawApiUrl
+  ? (rawApiUrl.endsWith('/api/v1') ? rawApiUrl : `${rawApiUrl.replace(/\/+$/, '')}/api/v1`)
+  : '/api/v1';
 
 export const api = axios.create({ baseURL });
 
