@@ -32,7 +32,26 @@ async function bootstrap() {
         await AppDataSource.runMigrations();
         logger.info('✅ Migrations applied');
       }
+
+      // Auto-seed if the database is empty (no businesses exist yet)
+      try {
+        const count = await AppDataSource.query(
+          `SELECT COUNT(*) as cnt FROM businesses`
+        );
+        const isEmpty = parseInt(count[0]?.cnt ?? '0', 10) === 0;
+        if (isEmpty) {
+          logger.info('🌱 Empty database detected — running initial seed…');
+          // Dynamically import seed to avoid loading it in non-production builds
+          const { runSeed } = await import('@database/seeds/run-seed');
+          await runSeed(AppDataSource);
+          logger.info('✅ Initial seed completed');
+        }
+      } catch (seedErr) {
+        // Non-fatal: seed failure should not crash the server
+        logger.warn('⚠️  Auto-seed skipped or failed (non-fatal)', { seedErr });
+      }
     }
+
 
     const app = createApp();
 
