@@ -7,7 +7,8 @@ export class AuthController {
 
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.authService.register(req.body);
+      const adminSecret = req.body.adminSecret || (req.headers['x-admin-secret'] as string | undefined);
+      const result = await this.authService.register({ ...req.body, adminSecret });
       sendSuccess(res, result, 'Registered successfully', 201);
     } catch (err) {
       next(err);

@@ -15,6 +15,7 @@ import {
   HelpCircle,
   CheckCircle2,
   XCircle,
+  ShieldCheck,
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuthStore } from '../store/auth.store';
@@ -29,6 +30,15 @@ interface BranchStaff {
 
 export const Login: React.FC = () => {
   const { setAuth } = useAuthStore();
+
+  // Admin restaurant registration visibility (hidden from normal staff/users by default)
+  const [showAdminRegister, setShowAdminRegister] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const params = new URLSearchParams(window.location.search);
+    return params.get('admin') === '1' || params.get('admin') === 'setup' || params.get('register') === 'admin';
+  });
+  const [adminSecret, setAdminSecret] = useState('');
+
   const [activeTab, setActiveTab] = useState<'pin' | 'email' | 'register'>('pin');
 
   // Staff PIN states
@@ -193,13 +203,17 @@ export const Login: React.FC = () => {
     }
   };
 
-  // ── Register New Cafe Handler ──
+  // ── Register New Cafe / Restaurant Handler (Admin Only) ──
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     if (!regData.businessName.trim() || !regData.name.trim() || !regData.email.trim() || !regData.password.trim()) {
       setError('Please fill in all required fields.');
+      return;
+    }
+    if (!adminSecret.trim()) {
+      setError('Admin Secret Key is required to create a new restaurant.');
       return;
     }
     if (regData.password.length < 6) {
@@ -217,11 +231,12 @@ export const Login: React.FC = () => {
         password: regData.password,
         phone: regData.phone.trim() || undefined,
         currency: 'NPR',
+        adminSecret: adminSecret.trim(),
       });
       const { user, accessToken, refreshToken } = res.data.data;
       setAuth(user, accessToken, refreshToken);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.response?.data?.message || 'Registration failed. Please verify your Admin Secret Key.');
     } finally {
       setLoading(false);
     }
@@ -256,8 +271,8 @@ export const Login: React.FC = () => {
           <p className="text-xs text-stone-400 mt-1">Hospitality Management & Billing System</p>
         </div>
 
-        {/* Mode Selector Tabs */}
-        <div className="grid grid-cols-3 bg-stone-950/60 p-1.5 border-b border-stone-800 text-xs font-semibold text-stone-400">
+        {/* Mode Selector Tabs - Only 2 tabs for normal users; 3rd tab visible only when admin onboarding is activated */}
+        <div className={`grid ${showAdminRegister ? 'grid-cols-3' : 'grid-cols-2'} bg-stone-950/60 p-1.5 border-b border-stone-800 text-xs font-semibold text-stone-400`}>
           <button
             type="button"
             onClick={() => {
@@ -290,21 +305,23 @@ export const Login: React.FC = () => {
             <span>Manager Login</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab('register');
-              setError('');
-            }}
-            className={`py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-              activeTab === 'register'
-                ? 'bg-amber-600 text-white shadow-md shadow-amber-900/30'
-                : 'hover:text-stone-200 hover:bg-stone-800/50'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5" />
-            <span>New Cafe</span>
-          </button>
+          {showAdminRegister && (
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('register');
+                setError('');
+              }}
+              className={`py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                activeTab === 'register'
+                  ? 'bg-amber-600 text-white shadow-md shadow-amber-900/30'
+                  : 'hover:text-stone-200 hover:bg-stone-800/50'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Admin Onboard</span>
+            </button>
+          )}
         </div>
 
         {/* Error Alert */}
@@ -567,9 +584,31 @@ export const Login: React.FC = () => {
           </form>
         )}
 
-        {/* ─── TAB 3: REGISTER NEW CAFE ─── */}
-        {activeTab === 'register' && (
+        {/* ─── TAB 3: REGISTER NEW CAFE / RESTAURANT (Authorized Platform Admin Only) ─── */}
+        {activeTab === 'register' && showAdminRegister && (
           <form onSubmit={handleRegisterSubmit} className="p-8 space-y-3.5">
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 shrink-0 text-amber-400" />
+              <span>Admin Mode: Enter the system administrator key to create a new restaurant.</span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-stone-300 mb-1">
+                Admin Secret Key <span className="text-amber-500">*</span>
+              </label>
+              <div className="relative">
+                <ShieldCheck className="w-4 h-4 text-stone-400 absolute left-3.5 top-3 pointer-events-none" />
+                <input
+                  type="password"
+                  required
+                  value={adminSecret}
+                  onChange={(e) => setAdminSecret(e.target.value)}
+                  placeholder="System Administrator Secret Key"
+                  className="w-full bg-stone-950/80 border border-stone-700 rounded-xl pl-10 pr-3.5 py-2 text-sm text-white focus:outline-none focus:border-amber-500 placeholder:text-stone-600"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs font-semibold text-stone-300 mb-1">
                 Cafe / Restaurant Name <span className="text-amber-500">*</span>
@@ -659,19 +698,37 @@ export const Login: React.FC = () => {
               disabled={loading}
               className="w-full mt-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-amber-900/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50 text-sm cursor-pointer"
             >
-              {loading ? 'Setting up Cafe...' : 'Register & Start Using POS'}
+              {loading ? 'Setting up Cafe...' : 'Authorize & Register Restaurant'}
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
         )}
 
-        {/* ─── PROFESSIONAL SYSTEM FOOTER (Replaces Demo Drawer) ─── */}
+        {/* ─── PROFESSIONAL SYSTEM FOOTER ─── */}
         <div className="border-t border-stone-800/80 bg-stone-950/70 px-6 py-3 flex items-center justify-between text-[11px] text-stone-500">
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>ChiyaPasal POS Cloud System</span>
           </div>
-          <span>v1.0 • Multi-tenant</span>
+          <div className="flex items-center gap-2">
+            <span>v1.0 • Multi-tenant</span>
+            <button
+              type="button"
+              onClick={() => {
+                const next = !showAdminRegister;
+                setShowAdminRegister(next);
+                if (next) {
+                  setActiveTab('register');
+                } else if (activeTab === 'register') {
+                  setActiveTab('pin');
+                }
+              }}
+              title="Platform Administrator Restaurant Setup"
+              className="text-stone-600 hover:text-stone-400 transition-colors p-1 rounded hover:bg-stone-800/50"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

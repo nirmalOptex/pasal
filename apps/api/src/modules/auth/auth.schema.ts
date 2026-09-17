@@ -10,6 +10,7 @@ export const registerSchema = z.object({
     phone: z.string().optional(),
     branchName: z.string().default('Main Branch'),
     branchAddress: z.string().optional(),
+    adminSecret: z.string().optional(),
   }),
 });
 

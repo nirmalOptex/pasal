@@ -30,6 +30,8 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
   FRONTEND_URL: z.string().optional(),
   SERVE_FRONTEND: z.enum(['true', 'false']).optional().default('false'),
+  ALLOW_PUBLIC_REGISTRATION: z.enum(['true', 'false']).optional().default('false'),
+  ADMIN_REGISTRATION_SECRET: z.string().optional().default('chhiyapasal_admin_secret_2026'),
 })
 .transform((data) => {
   const accessSecret = data.JWT_ACCESS_SECRET || data.JWT_SECRET;

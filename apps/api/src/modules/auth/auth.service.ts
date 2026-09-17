@@ -3,9 +3,10 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { AppDataSource } from '@database/data-source';
 import { Business, Branch, Role, User, RefreshToken, TableArea, Table } from '@entities/index';
-import { ConflictError, UnauthorizedError, NotFoundError } from '@shared/errors/app-error';
+import { ConflictError, UnauthorizedError, NotFoundError, ForbiddenError } from '@shared/errors/app-error';
 import { ROLE_DEFAULT_PERMISSIONS, PERMISSIONS } from '@shared/constants/permissions';
 import { JwtUserPayload, UserRoleType, TableStatus } from '@chhiyapasal/shared-types';
+import { env } from '@config/env';
 
 export class AuthService {
   private userRepo = AppDataSource.getRepository(User);
@@ -23,7 +24,20 @@ export class AuthService {
     phone?: string;
     branchName?: string;
     branchAddress?: string;
+    adminSecret?: string;
   }) {
+    // Validate that caller has permission to create a new restaurant/business
+    const isPublicRegistrationAllowed = env.ALLOW_PUBLIC_REGISTRATION === 'true';
+    const isAuthorizedAdmin = Boolean(
+      data.adminSecret && env.ADMIN_REGISTRATION_SECRET && data.adminSecret === env.ADMIN_REGISTRATION_SECRET
+    );
+
+    if (!isPublicRegistrationAllowed && !isAuthorizedAdmin) {
+      throw new ForbiddenError(
+        'Normal users are not authorized to create a new restaurant. Please contact your system administrator.'
+      );
+    }
+
     const existingUser = await this.userRepo.findOne({ where: { email: data.email } });
     if (existingUser) {
       throw new ConflictError('A user with this email address already exists');
