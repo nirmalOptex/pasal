@@ -13,6 +13,7 @@ dotenv.config();
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().regex(/^\d+$/, 'PORT must be a number').default('4000'),
+  HOST: z.string().default('0.0.0.0'),
   DATABASE_URL: z.string().optional(),
   DB_HOST: z.string().optional().default('localhost'),
   DB_PORT: z.string().regex(/^\d+$/, 'DB_PORT must be a number').default('5432'),

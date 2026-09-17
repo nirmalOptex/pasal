@@ -11,8 +11,19 @@ dotenv.config({ path: path.resolve(__dirname, '../../../.env') });   // root .en
 const entitiesList = Object.values(Entities).filter((item) => typeof item === 'function');
 
 const isDev = process.env.NODE_ENV !== 'production';
-const useSsl = process.env.DB_SSL === 'true';
-const rejectUnauthorized = process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false';
+const isSupabase = Boolean(
+  process.env.DB_HOST?.includes('supabase.co') ||
+  process.env.DATABASE_URL?.includes('supabase.co')
+);
+const useSsl =
+  process.env.DB_SSL === 'true' ||
+  isSupabase ||
+  Boolean(process.env.DATABASE_URL && process.env.DATABASE_URL.includes('sslmode=require'));
+
+// Supabase poolers require rejectUnauthorized: false unless explicitly forced to true
+const rejectUnauthorized = isSupabase
+  ? process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true'
+  : process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false';
 
 const connectionOptions: any = {
   type: 'postgres',

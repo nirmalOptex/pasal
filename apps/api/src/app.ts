@@ -51,7 +51,11 @@ export function createApp(): Application {
       // Allow requests with no origin (e.g. mobile apps, curl, uptime probes)
       if (!origin) return callback(null, true);
       const normalized = origin.replace(/\/+$/, '');
-      if (allowedOrigins.includes(normalized)) {
+      if (
+        allowedOrigins.includes('*') ||
+        allowedOrigins.includes(normalized) ||
+        (allowedOrigins.some((allowed) => allowed.includes('.vercel.app')) && normalized.endsWith('.vercel.app'))
+      ) {
         return callback(null, true);
       }
       return callback(null, false);

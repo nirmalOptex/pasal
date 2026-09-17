@@ -55,8 +55,9 @@ async function bootstrap() {
 
     const app = createApp();
 
-    const server = app.listen(PORT, '0.0.0.0', () => {
-      logger.info(`🚀 ChiyaPasal API running on http://0.0.0.0:${PORT}`);
+    const HOST = env.HOST || '0.0.0.0';
+    const server = app.listen(PORT, HOST, () => {
+      logger.info(`🚀 ChiyaPasal API running on http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`);
       logger.info(`   Environment: ${env.NODE_ENV}`);
     });
 
