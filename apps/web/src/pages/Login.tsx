@@ -58,23 +58,35 @@ export const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showDemoDrawer, setShowDemoDrawer] = useState(false);
 
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+
   useEffect(() => {
     loadBranchStaff();
   }, []);
 
   const loadBranchStaff = async () => {
     setStaffLoading(true);
+    setConnectionError(null);
     try {
       const res = await api.get('/auth/branch-staff');
-      const staff: BranchStaff[] = res.data.data || [];
+      // If VITE_API_URL is not set in Vercel, the SPA rewrite returns HTML index.html
+      if (typeof res.data === 'string' && res.data.includes('<!DOCTYPE')) {
+        throw new Error(
+          'API returned HTML instead of JSON. Check that VITE_API_URL is configured in Vercel.'
+        );
+      }
+      const staff: BranchStaff[] = res.data?.data || [];
       setStaffList(staff);
       if (staff.length > 0) {
         // default select the cashier or first staff member
         const cashier = staff.find((s) => s.role === 'CASHIER') || staff[0];
         setSelectedStaff(cashier);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load branch staff list', err);
+      setConnectionError(
+        err.message || 'Unable to connect to backend server'
+      );
     } finally {
       setStaffLoading(false);
     }
@@ -272,7 +284,32 @@ export const Login: React.FC = () => {
             </p>
 
             {/* Staff Horizontal Carousel / Grid */}
-            {staffList.length > 0 && (
+            {staffLoading ? (
+              <div className="flex items-center justify-center py-4 mb-3 text-xs text-stone-400 gap-2">
+                <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                <span>Connecting to staff directory…</span>
+              </div>
+            ) : connectionError ? (
+              <div className="mb-4 p-3 rounded-xl bg-amber-950/40 border border-amber-800/60 text-amber-300 text-xs">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold flex items-center gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    Backend Disconnected
+                  </span>
+                  <button
+                    type="button"
+                    onClick={loadBranchStaff}
+                    className="underline text-amber-200 hover:text-white font-medium cursor-pointer"
+                  >
+                    Retry
+                  </button>
+                </div>
+                <p className="mt-1 text-[11px] text-stone-300">{connectionError}</p>
+                <p className="mt-1 text-[10px] text-stone-500 font-mono break-all">
+                  API: {api.defaults.baseURL || '/api/v1'}
+                </p>
+              </div>
+            ) : staffList.length > 0 ? (
               <div className="grid grid-cols-3 gap-2 mb-5">
                 {staffList.map((staff) => {
                   const isSelected = selectedStaff?.id === staff.id;
@@ -302,7 +339,7 @@ export const Login: React.FC = () => {
                   );
                 })}
               </div>
-            )}
+            ) : null}
 
             {/* PIN Mask Display */}
             <div className="flex flex-col items-center mb-5">

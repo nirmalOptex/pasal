@@ -35,41 +35,68 @@ import { reportRoutes } from '@modules/report/report.routes';
 export function createApp(): Application {
   const app = express();
 
+  // Trust first proxy (Render, AWS, Nginx, cloud load balancers)
+  app.set('trust proxy', 1);
+
   // ─── Security ─────────────────────────────────────────────
-  app.use(helmet());
-
-  const frontendEnv = process.env.FRONTEND_URL;
-  let corsOrigin: boolean | ((origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => void) = true;
-
-  if (frontendEnv) {
-    const allowedOrigins = frontendEnv
-      .split(',')
-      .map((url) => url.trim().replace(/\/+$/, ''))
-      .filter(Boolean);
-
-    corsOrigin = (origin, callback) => {
-      // Allow requests with no origin (e.g. mobile apps, curl, uptime probes)
-      if (!origin) return callback(null, true);
-      const normalized = origin.replace(/\/+$/, '');
-      if (
-        allowedOrigins.includes('*') ||
-        allowedOrigins.includes(normalized) ||
-        (allowedOrigins.some((allowed) => allowed.includes('.vercel.app')) && normalized.endsWith('.vercel.app'))
-      ) {
-        return callback(null, true);
-      }
-      return callback(null, false);
-    };
-  } else if (process.env.NODE_ENV === 'production') {
-    logger.warn('CORS is open to all origins. Set FRONTEND_URL in environment to restrict access.');
-  }
-
   app.use(
-    cors({
-      origin: corsOrigin,
-      credentials: true,
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
     })
   );
+
+  const frontendEnv = process.env.FRONTEND_URL;
+
+  const corsOrigin = (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void
+  ) => {
+    // Allow requests with no origin (e.g. mobile apps, curl, uptime probes)
+    if (!origin) return callback(null, true);
+
+    if (!frontendEnv) {
+      return callback(null, true);
+    }
+
+    const normalized = origin.trim().toLowerCase().replace(/\/+$/, '');
+    const allowedOrigins = frontendEnv
+      .split(',')
+      .map((url) => url.trim().toLowerCase().replace(/\/+$/, ''))
+      .filter(Boolean);
+
+    const isAllowed =
+      allowedOrigins.includes('*') ||
+      allowedOrigins.includes(normalized) ||
+      (allowedOrigins.some((url) => url.includes('vercel.app')) && normalized.endsWith('.vercel.app')) ||
+      normalized.startsWith('http://localhost:') ||
+      normalized.startsWith('http://127.0.0.1:');
+
+    if (isAllowed) {
+      return callback(null, true);
+    }
+
+    logger.warn(`CORS blocked request from origin: ${origin} (Allowed: ${frontendEnv})`);
+    return callback(null, false);
+  };
+
+  const corsOptions: cors.CorsOptions = {
+    origin: corsOrigin,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'x-branch-id',
+    ],
+    exposedHeaders: ['x-branch-id', 'Content-Range', 'X-Content-Range'],
+    optionsSuccessStatus: 204,
+  };
+
+  app.use(cors(corsOptions));
+  app.options('*', cors(corsOptions));
 
   // ─── Rate limiting ─────────────────────────────────────────
   const limiter = rateLimit({
