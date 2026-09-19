@@ -1,5 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build:shared && npm run build:Web",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/(.*)",

@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build:shared": "npx tsc -p ../../packages/shared-types/tsconfig.json",
+    "build": "npm run build:shared && vite build",
+    "build:Web": "vite build",
     "type-check": "tsc --noEmit",
     "preview": "vite preview"
   },

@@ -1,9 +1,7 @@
 {
   "version": 2,
   "installCommand": "npm install --include=dev",
-  "buildCommand": "npm run build --workspace=packages/shared-types && npm run build --workspace=apps/web",
+  "buildCommand": "npm run build:shared && npm run build:web",
   "outputDirectory": "apps/web/dist",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
