@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   XCircle,
   ShieldCheck,
+  ArrowLeft,
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuthStore } from '../store/auth.store';
@@ -28,18 +29,24 @@ interface BranchStaff {
   hasPin: boolean;
 }
 
-export const Login: React.FC = () => {
+export interface LoginProps {
+  initialTab?: 'pin' | 'email' | 'register';
+  onBackToLanding?: () => void;
+}
+
+export const Login: React.FC<LoginProps> = ({ initialTab = 'pin', onBackToLanding }) => {
   const { setAuth } = useAuthStore();
 
   // Admin restaurant registration visibility (hidden from normal staff/users by default)
   const [showAdminRegister, setShowAdminRegister] = useState(() => {
+    if (initialTab === 'register') return true;
     if (typeof window === 'undefined') return false;
     const params = new URLSearchParams(window.location.search);
     return params.get('admin') === '1' || params.get('admin') === 'setup' || params.get('register') === 'admin';
   });
   const [adminSecret, setAdminSecret] = useState('');
 
-  const [activeTab, setActiveTab] = useState<'pin' | 'email' | 'register'>('pin');
+  const [activeTab, setActiveTab] = useState<'pin' | 'email' | 'register'>(initialTab);
 
   // Staff PIN states
   const [staffList, setStaffList] = useState<BranchStaff[]>([]);
@@ -260,7 +267,20 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 flex flex-col items-center justify-center p-4">
+      {onBackToLanding && (
+        <div className="w-full max-w-lg mb-4 flex justify-between items-center">
+          <button
+            type="button"
+            onClick={onBackToLanding}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-stone-900/80 hover:bg-stone-800 text-stone-400 hover:text-stone-200 border border-stone-800 text-xs font-medium transition-all cursor-pointer backdrop-blur-md"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-amber-400" />
+            <span>← Back to ChiyaPasal Home</span>
+          </button>
+          <span className="text-[11px] text-stone-500 font-medium">Terminal Portal</span>
+        </div>
+      )}
       <div className="w-full max-w-lg bg-stone-900/90 border border-stone-800 backdrop-blur-2xl rounded-2xl shadow-2xl overflow-hidden text-stone-200 transition-all">
         {/* Brand Banner */}
         <div className="pt-8 pb-6 px-8 flex flex-col items-center border-b border-stone-800/80 text-center">

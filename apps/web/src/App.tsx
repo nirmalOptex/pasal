@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuthStore } from './store/auth.store';
 import { Sidebar } from './components/Sidebar';
 import { Login } from './pages/Login';
+import { LandingPage } from './pages/LandingPage';
 import { POS } from './pages/POS';
 import { Orders } from './pages/Orders';
 import { Kitchen } from './pages/Kitchen';
@@ -17,9 +18,43 @@ export const App: React.FC = () => {
   const { user, token } = useAuthStore();
   const [currentTab, setCurrentTab] = useState<string>('pos');
 
-  // If user is not logged in, render the login view
+  // Track unauthenticated view (landing page vs login view)
+  const [authScreen, setAuthScreen] = useState<'landing' | 'login'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('login') === '1' || params.get('admin') || window.location.hash === '#login') {
+        return 'login';
+      }
+    }
+    return 'landing';
+  });
+
+  const [loginInitialTab, setLoginInitialTab] = useState<'pin' | 'email' | 'register'>('email');
+
+  // If user is not logged in, render either the Landing Page or the Login Portal
   if (!token || !user) {
-    return <Login />;
+    if (authScreen === 'login') {
+      return (
+        <Login
+          initialTab={loginInitialTab}
+          onBackToLanding={() => {
+            setAuthScreen('landing');
+            if (window.location.hash === '#login') {
+              window.history.replaceState(null, '', window.location.pathname);
+            }
+          }}
+        />
+      );
+    }
+
+    return (
+      <LandingPage
+        onLoginClick={(tab = 'email') => {
+          setLoginInitialTab(tab);
+          setAuthScreen('login');
+        }}
+      />
+    );
   }
 
   return (
