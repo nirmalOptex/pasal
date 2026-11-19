@@ -166,13 +166,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             </button>
 
             {/* Primary Get Started */}
-            <button
+            {/* <button
               onClick={() => onLoginClick('register')}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-amber-600 via-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg shadow-amber-900/30 hover:shadow-amber-900/50 transition-all cursor-pointer transform hover:-translate-y-0.5"
             >
-              <span>Launch POS</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+              {/* <span>Launch POS</span> */}
+              {/* <ArrowRight className="w-3.5 h-3.5" /> */}
+            {/* </button> */} 
           </div>
         </div>
       </header>
