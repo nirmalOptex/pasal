@@ -36,23 +36,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab }) =
   ];
 
   return (
-    <aside className="w-64 bg-stone-900 text-stone-200 flex flex-col justify-between border-r border-stone-800 select-none">
+    <aside className="w-64 bg-[#20251f] text-[#dceadf] flex flex-col justify-between border-r border-[#314139] select-none shadow-[14px_0_40px_rgba(23,35,31,.08)]">
       <div>
         {/* Brand Header */}
-        <div className="p-5 flex items-center gap-3 border-b border-stone-800/80">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center shadow-lg shadow-amber-900/30">
-            <Coffee className="w-6 h-6 text-amber-100" />
+        <div className="p-5 flex items-center gap-3 border-b border-[#314139]">
+          <div className="w-10 h-10 rounded-xl bg-[#c99132] flex items-center justify-center shadow-[0_10px_24px_rgba(217,95,76,.18)]">
+            <Coffee className="w-6 h-6 text-[#20251f]" />
           </div>
           <div>
             <h1 className="font-bold text-lg leading-tight tracking-wide text-white">ChiyaPasal</h1>
-            <p className="text-xs text-amber-400 font-medium">Smart Cafe & POS</p>
+            <p className="text-xs text-[#b8c7aa] font-medium">Smart Cafe & POS</p>
           </div>
         </div>
 
         {/* Business & Branch Info */}
-        <div className="px-5 py-3 bg-stone-950/40 text-xs border-b border-stone-800/60">
-          <p className="text-stone-400 font-medium truncate">{user?.businessName || 'Chiya Pasal'}</p>
-          <p className="text-amber-500 font-semibold truncate">{user?.branchName || 'Main Branch'}</p>
+        <div className="px-5 py-3 bg-[#101916]/40 text-xs border-b border-[#314139]">
+          <p className="text-[#91a198] font-medium truncate">{user?.businessName || 'Chiya Pasal'}</p>
+          <p className="text-[#ff9b8d] font-semibold truncate">{user?.branchName || 'Main Branch'}</p>
         </div>
 
         {/* Nav Links */}
@@ -66,11 +66,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab }) =
                 onClick={() => setCurrentTab(item.id)}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   isActive
-                    ? 'bg-amber-600 text-white shadow-md shadow-amber-700/20'
-                    : 'text-stone-400 hover:text-stone-100 hover:bg-stone-800/60'
+                    ? 'bg-[#c99132] text-[#20251f] shadow-[0_8px_20px_rgba(201,145,50,.16)]'
+                    : 'text-[#aebbb4] hover:text-white hover:bg-[#26342f]'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-stone-400'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-[#20251f]' : 'text-[#989e91]'}`} />
                 <span>{item.label}</span>
               </button>
             );
@@ -79,7 +79,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab }) =
       </div>
 
       {/* User Footer */}
-      <div className="p-4 border-t border-stone-800/80 bg-stone-950/30">
+      <div className="p-4 border-t border-[#314139] bg-[#101916]/40">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5 overflow-hidden">
             <div className="w-8 h-8 rounded-full bg-stone-700 flex items-center justify-center text-stone-200 text-xs font-bold">
