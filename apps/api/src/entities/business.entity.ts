@@ -18,6 +18,9 @@ export class Business {
   @Column({ type: 'varchar', length: 255 })
   name!: string;
 
+  @Column({ type: 'varchar', length: 100, nullable: true, unique: true })
+  slug?: string | null;
+
   @Column({ type: 'text', nullable: true })
   address?: string;
 

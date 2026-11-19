@@ -24,6 +24,7 @@ export class AuthService {
     phone?: string;
     branchName?: string;
     branchAddress?: string;
+    slug?: string;
     adminSecret?: string;
   }) {
     // Validate that caller has permission to create a new restaurant/business
@@ -49,8 +50,20 @@ export class AuthService {
 
     try {
       // 1. Create Business
+      const baseSlug = (data.slug || data.businessName)
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      let slug = baseSlug;
+      let suffix = 2;
+      while (await queryRunner.manager.findOne(Business, { where: { slug } })) {
+        slug = `${baseSlug}-${suffix++}`;
+      }
+
       const business = queryRunner.manager.create(Business, {
         name: data.businessName,
+        slug,
         currency: data.currency || 'NPR',
         timezone: 'Asia/Kathmandu',
       });
@@ -162,15 +175,37 @@ export class AuthService {
     }
   }
 
-  async login(email: string, pass: string) {
-    const user = await this.userRepo
+  async getTenantBySlug(slug: string) {
+    const business = await this.businessRepo.findOne({
+      where: { slug, is_active: true },
+      relations: ['branches'],
+    });
+    if (!business) {
+      throw new NotFoundError('Tenant not found');
+    }
+    const activeBranches = business.branches?.filter((branch) => branch.status === 'ACTIVE') || [];
+    return {
+      id: business.id,
+      name: business.name,
+      slug: business.slug,
+      currency: business.currency,
+      logoUrl: business.logo_url,
+      branches: activeBranches.map((branch) => ({ id: branch.id, name: branch.name })),
+    };
+  }
+
+  async login(email: string, pass: string, tenantSlug?: string) {
+    const query = this.userRepo
       .createQueryBuilder('user')
       .addSelect('user.password_hash')
       .leftJoinAndSelect('user.role', 'role')
       .leftJoinAndSelect('user.business', 'business')
       .leftJoinAndSelect('user.branch', 'branch')
-      .where('user.email = :email', { email })
-      .getOne();
+      .where('user.email = :email', { email });
+    if (tenantSlug) {
+      query.andWhere('business.slug = :tenantSlug', { tenantSlug });
+    }
+    const user = await query.getOne();
 
     if (!user || !user.is_active) {
       throw new UnauthorizedError('Invalid email or password');
@@ -228,7 +263,7 @@ export class AuthService {
     await this.tokenRepo.update({ token_hash: hashed }, { revoked_at: new Date() });
   }
 
-  async loginWithPin(pin: string, branchId?: string, employeeId?: string) {
+  async loginWithPin(pin: string, branchId?: string, employeeId?: string, tenantSlug?: string) {
     if (!pin || pin.length < 4) {
       throw new UnauthorizedError('Please enter a valid 4-to-6 digit PIN');
     }
@@ -236,15 +271,18 @@ export class AuthService {
     let user: User | null = null;
 
     if (employeeId) {
-      user = await this.userRepo
+      const userQuery = this.userRepo
         .createQueryBuilder('user')
         .addSelect('user.pin_hash')
         .leftJoinAndSelect('user.role', 'role')
         .leftJoinAndSelect('user.business', 'business')
         .leftJoinAndSelect('user.branch', 'branch')
         .where('user.id = :employeeId', { employeeId })
-        .andWhere('user.is_active = true')
-        .getOne();
+        .andWhere('user.is_active = true');
+      if (tenantSlug) {
+        userQuery.andWhere('business.slug = :tenantSlug', { tenantSlug });
+      }
+      user = await userQuery.getOne();
 
       if (!user) {
         throw new UnauthorizedError('Employee not found or account is deactivated');
@@ -268,6 +306,9 @@ export class AuthService {
         .where('user.is_active = true')
         .andWhere('user.pin_hash IS NOT NULL');
 
+      if (tenantSlug) {
+        query.andWhere('business.slug = :tenantSlug', { tenantSlug });
+      }
       if (branchId) {
         query.andWhere('(user.branch_id = :branchId OR user.branch_id IS NULL)', { branchId });
       }
@@ -308,15 +349,19 @@ export class AuthService {
     };
   }
 
-  async getBranchStaff(branchId?: string) {
+  async getBranchStaff(branchId?: string, tenantSlug?: string) {
     const query = this.userRepo
       .createQueryBuilder('user')
       .addSelect('user.pin_hash')
       .leftJoinAndSelect('user.role', 'role')
+      .leftJoinAndSelect('user.business', 'business')
       .leftJoinAndSelect('user.branch', 'branch')
       .where('user.is_active = true')
       .orderBy('user.name', 'ASC');
 
+    if (tenantSlug) {
+      query.andWhere('business.slug = :tenantSlug', { tenantSlug });
+    }
     if (branchId) {
       query.andWhere('(user.branch_id = :branchId OR user.branch_id IS NULL)', { branchId });
     }

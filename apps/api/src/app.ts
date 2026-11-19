@@ -90,6 +90,7 @@ export function createApp(): Application {
       'Accept',
       'Authorization',
       'x-branch-id',
+      'x-tenant-slug',
     ],
     exposedHeaders: ['x-branch-id', 'Content-Range', 'X-Content-Range'],
     optionsSuccessStatus: 204,

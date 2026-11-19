@@ -10,6 +10,30 @@ const baseURL = rawApiUrl
 
 export const api = axios.create({ baseURL });
 
+export function getTenantSlug(): string | null {
+  if (typeof window === 'undefined') return null;
+
+  const hostname = window.location.hostname.toLowerCase();
+  if (hostname === 'localhost' || hostname === '127.0.0.1') return null;
+
+  const configuredBaseDomain = (import.meta.env.VITE_TENANT_BASE_DOMAIN || '').toLowerCase().replace(/^\./, '');
+  if (configuredBaseDomain && hostname.endsWith(`.${configuredBaseDomain}`)) {
+    return hostname.slice(0, -(configuredBaseDomain.length + 1));
+  }
+
+  if (hostname.endsWith('.localhost')) {
+    return hostname.slice(0, -'.localhost'.length);
+  }
+
+  if (hostname.endsWith('.vercel.app')) {
+    // The base Vercel deployment hostname is not a tenant subdomain.
+    // Tenant subdomains require a custom wildcard domain.
+    return null;
+  }
+
+  return null;
+}
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -18,6 +42,10 @@ api.interceptors.request.use((config) => {
   const branchId = localStorage.getItem('branchId');
   if (branchId) {
     config.headers['x-branch-id'] = branchId;
+  }
+  const tenantSlug = getTenantSlug();
+  if (tenantSlug) {
+    config.headers['x-tenant-slug'] = tenantSlug;
   }
   return config;
 });

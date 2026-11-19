@@ -18,7 +18,7 @@ import {
   ShieldCheck,
   ArrowLeft,
 } from 'lucide-react';
-import { api } from '../api/client';
+import { api, getTenantSlug } from '../api/client';
 import { useAuthStore } from '../store/auth.store';
 
 interface BranchStaff {
@@ -65,6 +65,7 @@ export const Login: React.FC<LoginProps> = ({ initialTab = 'pin', onBackToLandin
   // Registration states
   const [regData, setRegData] = useState({
     businessName: '',
+    slug: '',
     branchName: 'Main Branch',
     name: '',
     email: '',
@@ -74,6 +75,15 @@ export const Login: React.FC<LoginProps> = ({ initialTab = 'pin', onBackToLandin
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [tenantName, setTenantName] = useState('');
+  const tenantSlug = getTenantSlug();
+
+  useEffect(() => {
+    if (!tenantSlug) return;
+    api.get(`/auth/tenant/${tenantSlug}`)
+      .then((res) => setTenantName(res.data?.data?.name || ''))
+      .catch(() => setTenantName(''));
+  }, [tenantSlug]);
 
   // Load staff list on initial mount
   useEffect(() => {
@@ -232,6 +242,7 @@ export const Login: React.FC<LoginProps> = ({ initialTab = 'pin', onBackToLandin
     try {
       const res = await api.post('/auth/register', {
         businessName: regData.businessName.trim(),
+        slug: regData.slug.trim() || undefined,
         branchName: regData.branchName.trim() || 'Main Branch',
         name: regData.name.trim(),
         email: regData.email.trim(),
@@ -287,7 +298,7 @@ export const Login: React.FC<LoginProps> = ({ initialTab = 'pin', onBackToLandin
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-600 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-900/40 mb-3 ring-1 ring-amber-500/20">
             <Coffee className="w-8 h-8 text-amber-100" />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">ChiyaPasal POS</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">{tenantName || 'ChiyaPasal POS'}</h1>
           <p className="text-xs text-stone-400 mt-1">Hospitality Management & Billing System</p>
         </div>
 
@@ -641,6 +652,20 @@ export const Login: React.FC<LoginProps> = ({ initialTab = 'pin', onBackToLandin
                   value={regData.businessName}
                   onChange={(e) => setRegData({ ...regData, businessName: e.target.value })}
                   placeholder="e.g. Himalayan Chiya Corner"
+                  className="w-full bg-stone-950/80 border border-stone-700 rounded-xl pl-10 pr-3.5 py-2 text-sm text-white focus:outline-none focus:border-amber-500 placeholder:text-stone-600"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-stone-300 mb-1">Tenant Subdomain Slug</label>
+              <div className="relative">
+                <Building2 className="w-4 h-4 text-stone-400 absolute left-3.5 top-3 pointer-events-none" />
+                <input
+                  type="text"
+                  value={regData.slug}
+                  onChange={(e) => setRegData({ ...regData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })}
+                  placeholder="himalayan-brew"
                   className="w-full bg-stone-950/80 border border-stone-700 rounded-xl pl-10 pr-3.5 py-2 text-sm text-white focus:outline-none focus:border-amber-500 placeholder:text-stone-600"
                 />
               </div>
