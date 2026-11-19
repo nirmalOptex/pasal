@@ -10,6 +10,7 @@ export const registerSchema = z.object({
     phone: z.string().optional(),
     branchName: z.string().default('Main Branch'),
     branchAddress: z.string().optional(),
+    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must contain lowercase letters, numbers, and hyphens').optional(),
     adminSecret: z.string().optional(),
   }),
 });

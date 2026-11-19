@@ -5,6 +5,15 @@ import { sendSuccess } from '@shared/utils/response.util';
 export class AuthController {
   private authService = new AuthService();
 
+  getTenantBySlug = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const tenant = await this.authService.getTenantBySlug(req.params.slug);
+      sendSuccess(res, tenant);
+    } catch (err) {
+      next(err);
+    }
+  };
+
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const adminSecret = req.body.adminSecret || (req.headers['x-admin-secret'] as string | undefined);
@@ -18,7 +27,8 @@ export class AuthController {
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = req.body;
-      const result = await this.authService.login(email, password);
+      const tenantSlug = req.headers['x-tenant-slug'] as string | undefined;
+      const result = await this.authService.login(email, password, tenantSlug);
       sendSuccess(res, result, 'Logged in successfully');
     } catch (err) {
       next(err);
@@ -48,7 +58,8 @@ export class AuthController {
   loginPin = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { pin, branchId, employeeId } = req.body;
-      const result = await this.authService.loginWithPin(pin, branchId, employeeId);
+      const tenantSlug = req.headers['x-tenant-slug'] as string | undefined;
+      const result = await this.authService.loginWithPin(pin, branchId, employeeId, tenantSlug);
       sendSuccess(res, result, 'Staff authenticated successfully');
     } catch (err) {
       next(err);
@@ -58,7 +69,8 @@ export class AuthController {
   getBranchStaff = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { branchId } = req.query;
-      const result = await this.authService.getBranchStaff(branchId as string | undefined);
+      const tenantSlug = req.headers['x-tenant-slug'] as string | undefined;
+      const result = await this.authService.getBranchStaff(branchId as string | undefined, tenantSlug);
       sendSuccess(res, result, 'Branch staff fetched');
     } catch (err) {
       next(err);

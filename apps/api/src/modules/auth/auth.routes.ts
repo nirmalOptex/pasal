@@ -8,6 +8,7 @@ const router = Router();
 const controller = new AuthController();
 
 router.post('/register', validate(registerSchema), controller.register);
+router.get('/tenant/:slug', controller.getTenantBySlug);
 router.post('/login', validate(loginSchema), controller.login);
 router.post('/login-pin', controller.loginPin);
 router.get('/branch-staff', controller.getBranchStaff);
