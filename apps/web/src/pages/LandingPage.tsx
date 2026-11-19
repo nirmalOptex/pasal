@@ -86,29 +86,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-stone-900 text-stone-100 font-['Plus_Jakarta_Sans',sans-serif] selection:bg-amber-600 selection:text-white">
+    <div className="min-h-screen overflow-x-hidden bg-[#f7f4eb] text-[#20251f] font-['Plus_Jakarta_Sans',sans-serif] selection:bg-[#c99132] selection:text-[#20251f]">
       {/* ─── TOP NOTIFICATION BANNER ─── */}
-      <div className="bg-gradient-to-r from-amber-900/80 via-amber-800 to-amber-900/80 border-b border-amber-700/40 text-amber-200 text-xs py-2 px-4 text-center font-medium flex items-center justify-center gap-2">
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-          🇳🇵 Nepal's First
-        </span>
-        <span>Dedicated Cafe, Tea House & Restaurant Operating System with Fonepay QR & Digital Khata</span>
-        <button
+      {/* <div className="overflow-hidden bg-[#20251f] border-b border-[#314139] text-[#dceadf] text-xs py-2 px-4 text-center font-medium flex items-center justify-center gap-2"> */}
+        {/* <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#b8c7aa]/15 text-[#e5e7dc] border border-[#b8c7aa]/25">
+          Nepal's First
+        </span> */}
+        {/* <span className="hidden sm:inline">Dedicated Cafe, Tea House & Restaurant Operating System with Fonepay QR & Digital Khata</span> */}
+        {/* <button
           onClick={() => onLoginClick('register')}
           className="underline hover:text-white transition-colors ml-1 font-semibold hidden sm:inline"
         >
           Register Your Cafe →
-        </button>
-      </div>
+        </button> */}
+      {/* </div> */}
 
       {/* ─── STICKY NAVIGATION BAR ─── */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-stone-950/80 border-b border-stone-800/80 transition-all">
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#f7f4eb]/92 border-b border-[#20251f]/10 transition-all">
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* Logo & Brand */}
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-900/40 ring-1 ring-amber-400/30">
-                <Coffee className="w-6 h-6 text-amber-100" />
+              <div className="w-12 h-12 rounded-2xl bg-[#c99132] flex items-center justify-center shadow-[0_12px_25px_rgba(217,95,76,.18)] ring-1 ring-[#20251f]/10">
+                <Coffee className="w-6 h-6 text-[#20251f]" />
               </div>
               <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
@@ -117,17 +118,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xl font-bold tracking-tight text-white">ChiyaPasal</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                <span className="text-xl font-bold tracking-tight text-[#20251f]">ChiyaPasal</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#b8c7aa] text-[#596153] border border-[#596153]/10">
                   POS OS
                 </span>
               </div>
-              <p className="text-[11px] text-stone-400">Hospitality & Business Operating System</p>
+              <p className="text-[11px] text-[#69766f]">Hospitality & Business Operating System</p>
             </div>
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-stone-300">
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-[#536159]">
             <a href="#features" className="hover:text-amber-400 transition-colors">
               Features
             </a>
@@ -150,7 +151,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             {/* Quick Staff Floor PIN Login */}
             <button
               onClick={() => onLoginClick('pin')}
-              className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-700/80 transition-all cursor-pointer shadow-sm"
+              className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold bg-white/70 hover:bg-white text-[#596153] border border-[#20251f]/10 transition-all cursor-pointer shadow-sm"
               title="Quick access for floor staff with 4-digit PIN"
             >
               <KeyRound className="w-3.5 h-3.5 text-amber-400" />
@@ -160,7 +161,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             {/* Manager Sign In */}
             <button
               onClick={() => onLoginClick('email')}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-stone-800 hover:bg-stone-700 text-white border border-stone-700 transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold bg-[#20251f] hover:bg-[#30382f] text-white border border-[#20251f] transition-all cursor-pointer"
             >
               <span>Sign In</span>
             </button>
@@ -168,7 +169,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             {/* Primary Get Started */}
             <button
               onClick={() => onLoginClick('register')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-amber-600 via-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg shadow-amber-900/30 hover:shadow-amber-900/50 transition-all cursor-pointer transform hover:-translate-y-0.5"
+              className="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold bg-[#c99132] hover:bg-[#b77f27] text-[#20251f] shadow-[0_10px_24px_rgba(217,95,76,.18)] transition-all cursor-pointer transform hover:-translate-y-0.5"
             >
               <span>Launch POS</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -178,38 +179,40 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       </header>
 
       {/* ─── HERO SECTION ─── */}
-      <section className="relative pt-16 pb-24 md:pt-24 md:pb-32 overflow-hidden">
+      <section className="relative pt-14 pb-20 md:pt-20 md:pb-28 overflow-hidden">
+        <div className="absolute left-[-7rem] top-24 h-44 w-44 rounded-full border-[28px] border-[#b8c7aa]/60 drift-shape pointer-events-none" />
+        <div className="absolute right-[-5rem] top-44 h-64 w-64 rounded-[42%] bg-[#c99132]/20 drift-shape pointer-events-none" />
         {/* Ambient Gradient Glows */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-amber-700/20 to-amber-500/10 blur-[130px] rounded-full pointer-events-none -z-10" />
         <div className="absolute -top-24 right-0 w-[450px] h-[450px] bg-orange-600/10 blur-[150px] rounded-full pointer-events-none -z-10" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Eyebrow badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-stone-900/90 border border-amber-600/30 text-amber-300 text-xs font-medium mb-8 backdrop-blur-md shadow-inner">
+          <div className="reveal-up inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-[#20251f]/10 text-[#596153] text-xs font-medium mb-8 backdrop-blur-md shadow-[0_10px_30px_rgba(23,35,31,.08)]">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Built for Modern Cafes, Bakeries & Tea Lounges in Nepal</span>
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-5xl mx-auto leading-[1.12]">
-            Fast Billing, Real-Time KDS &{' '}
-            <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 bg-clip-text text-transparent">
-              Digital Udharo Khata
+          <h1 className="reveal-up reveal-up-delay-1 text-5xl sm:text-7xl lg:text-[5.5rem] font-extrabold tracking-tight text-[#20251f] max-w-6xl mx-auto leading-[.95]">
+            The cafe, built to move.
+            <span className="block mt-3 font-serif italic font-normal text-[#b77f27]">
+              From table to kitchen.
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="mt-6 text-base sm:text-lg lg:text-xl text-stone-300 max-w-3xl mx-auto leading-relaxed font-normal">
+          <p className="reveal-up reveal-up-delay-2 mt-7 text-base sm:text-lg lg:text-xl text-[#536159] max-w-3xl mx-auto leading-relaxed font-normal">
             Eliminate lost kitchen tickets, untracked ingredient consumption, and manual ledger headaches.
             ChiyaPasal brings high-speed table POS, kitchen screens, recipe BOM inventory, and Fonepay settlements into one seamless platform.
           </p>
 
           {/* CTA Button Group */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
+          <div className="reveal-up reveal-up-delay-3 mt-9 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
             <button
               onClick={() => onLoginClick('email')}
-              className="w-full sm:w-auto px-8 py-4 rounded-xl text-sm font-bold bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-xl shadow-amber-900/40 hover:shadow-amber-900/60 transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+              className="w-full sm:w-auto px-8 py-4 rounded-full text-sm font-bold bg-[#c99132] hover:bg-[#b77f27] text-[#20251f] shadow-[0_16px_35px_rgba(217,95,76,.22)] transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-1 hover:shadow-[0_22px_42px_rgba(217,95,76,.28)]"
             >
               <span>Get Started Free</span>
               <ArrowRight className="w-4 h-4" />
@@ -217,7 +220,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
 
             <button
               onClick={() => onLoginClick('pin')}
-              className="w-full sm:w-auto px-6 py-4 rounded-xl text-sm font-semibold bg-stone-900/90 hover:bg-stone-800 text-stone-200 border border-stone-700/80 hover:border-amber-500/50 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-6 py-4 rounded-full text-sm font-semibold bg-white/80 hover:bg-white text-[#596153] border border-[#20251f]/10 hover:border-[#596153]/30 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_10px_25px_rgba(23,35,31,.06)]"
             >
               <KeyRound className="w-4 h-4 text-amber-400" />
               <span>Floor Staff PIN Login</span>
@@ -225,13 +228,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
           </div>
 
           {/* Trust Value Badges */}
-          <div className="mt-14 pt-8 border-t border-stone-800/80 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto text-left">
+          <div className="mt-12 pt-7 border-t border-[#20251f]/10 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto text-left">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
                 <Zap className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-white">&lt;1.5s Dispatch</p>
+                <p className="text-sm font-bold text-black">&lt;1.5s Dispatch</p>
                 <p className="text-xs text-stone-400">Order-to-Kitchen KOT</p>
               </div>
             </div>
@@ -241,7 +244,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                 <Layers className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-white">Recipe BOM</p>
+                <p className="text-sm font-bold text-black">Recipe BOM</p>
                 <p className="text-xs text-stone-400">Auto Milk & Tea Grams</p>
               </div>
             </div>
@@ -251,7 +254,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                 <BookOpen className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-white">Digital Khata</p>
+                <p className="text-sm font-bold text-black">Digital Khata</p>
                 <p className="text-xs text-stone-400">Zero Unpaid Leaks</p>
               </div>
             </div>
@@ -261,7 +264,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                 <QrCode className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-white">Fonepay & Split</p>
+                <p className="text-sm font-bold text-black">Fonepay & Split</p>
                 <p className="text-xs text-stone-400">Multi-Payment Settlement</p>
               </div>
             </div>
@@ -701,7 +704,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       <section id="features" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Comprehensive Operating Suite</span>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white mt-2">
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-black mt-2">
             Engineered Specifically for Nepalese Food & Beverage
           </h2>
           <p className="text-stone-400 text-base mt-4">
@@ -862,7 +865,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       <section id="faq" className="py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
           <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Common Questions</span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-2">Frequently Asked Questions</h2>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-black mt-2">Frequently Asked Questions</h2>
         </div>
 
         <div className="space-y-4">

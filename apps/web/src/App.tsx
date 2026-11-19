@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getTenantSlug } from './api/client';
 import { useAuthStore } from './store/auth.store';
 import { Sidebar } from './components/Sidebar';
 import { Login } from './pages/Login';
@@ -22,7 +23,7 @@ export const App: React.FC = () => {
   const [authScreen, setAuthScreen] = useState<'landing' | 'login'>(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      if (params.get('login') === '1' || params.get('admin') || window.location.hash === '#login') {
+      if (getTenantSlug() || params.get('login') === '1' || params.get('admin') || window.location.hash === '#login') {
         return 'login';
       }
     }
@@ -58,12 +59,12 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#f7f4eb] text-[#20251f] font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Sidebar navigation */}
       <Sidebar currentTab={currentTab} setCurrentTab={setCurrentTab} />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex overflow-hidden">
+      <main className="app-content flex-1 flex overflow-hidden animate-[reveal-up_420ms_cubic-bezier(.2,.75,.25,1)_both]">
         {currentTab === 'pos' && <POS />}
         {currentTab === 'orders' && <Orders />}
         {currentTab === 'kitchen' && <Kitchen />}
